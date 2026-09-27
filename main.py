@@ -13,6 +13,15 @@ def get_heading_from_html(html: str) -> str:
     else:
         return ""
 
+def get_first_paragraph_from_html(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    soup_find_p = soup.find("main")
+
+    if isinstance(soup_find_p, Tag):
+        return soup_find_p.get_text(strip=True)
+    else:
+        return ""
+
 def main():
     print("Hello from build-a-web-scraper!")
 
