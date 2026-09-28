@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from bs4 import BeautifulSoup, Tag
 
 
@@ -21,6 +23,37 @@ def get_first_paragraph_from_html(html: str) -> str:
         return soup_find_p.get_text(strip=True)
     else:
         return ""
+
+def get_urls_from_html(html, base_url):
+    soup = BeautifulSoup(html, "html.parser")
+    soup_find_a = soup.find_all("a")
+    soup_find_a_list = []
+
+
+    for x in soup_find_a:
+        soup_find_a_get = x.get("href")
+        soup_find_a_get_urljoin = urljoin(base_url, soup_find_a_get)
+        soup_find_a_list.append(soup_find_a_get_urljoin)
+    return soup_find_a_list
+
+def get_images_from_html(html, base_url):
+    soup = BeautifulSoup(html, "html.parser")
+    soup_find_img = soup.find_all("img")
+    soup_find_img_list = []
+
+    for i in soup_find_img:
+            soup_find_img_get = i.get("src")
+            if soup_find_img_get:
+                soup_find_img_get_urljoin = urljoin(base_url, soup_find_img_get)
+                soup_find_img_list.append(soup_find_img_get_urljoin)
+            else:
+                continue
+    return soup_find_img_list
+
+
+
+
+
 
 def main():
     print("Hello from build-a-web-scraper!")
