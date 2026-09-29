@@ -68,12 +68,7 @@ def extract_page_data(html: str, page_url: str):
         "image_urls": get_images_from_html(html,page_url)
     }
 
-
-
-
-
-
-
+# the code above is just the set up
 def main():
     print("Hello from build-a-web-scraper!")
 
