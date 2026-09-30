@@ -1,8 +1,10 @@
+from http.client import responses
 from urllib.parse import urljoin
 from typing import TypedDict
 
 from bs4 import BeautifulSoup, Tag
 import sys
+import requests
 
 
 class PageData(TypedDict):
@@ -69,10 +71,22 @@ def extract_page_data(html: str, page_url: str):
         "image_urls": get_images_from_html(html,page_url)
     }
 
+def get_html(url):
+    response = requests.get(url, headers={"User-Agent": "BootCrawler/1.0"})
+    content_type = response.headers["Content-Type"]
+
+    if response.status_code > 400:
+        raise Exception("HTTP status code error level above 400 +")
+
+    if "text/html" not in content_type :
+        raise Exception("Content-type header is not text/html")
+
+    return response.text
+
 # the code above is just the set up
 def main():
     print("Hello from build-a-web-scraper!")
-    BASE_URL = sys.argv
+    BASE_URL = sys.argv[1]
     #setting up some arguments
     if len(sys.argv) < 2:
         print("no website provided")
@@ -84,5 +98,8 @@ def main():
 
     if len(sys.argv) == 2:
         print(f"starting crawl of: {BASE_URL}")
+
+    result_get_html = get_html(BASE_URL)
+    print(result_get_html)
 if __name__ == "__main__":
     main()
