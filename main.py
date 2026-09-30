@@ -2,6 +2,7 @@ from urllib.parse import urljoin
 from typing import TypedDict
 
 from bs4 import BeautifulSoup, Tag
+import sys
 
 
 class PageData(TypedDict):
@@ -71,7 +72,17 @@ def extract_page_data(html: str, page_url: str):
 # the code above is just the set up
 def main():
     print("Hello from build-a-web-scraper!")
+    BASE_URL = sys.argv
+    #setting up some arguments
+    if len(sys.argv) < 2:
+        print("no website provided")
+        sys.exit(1)
 
+    if len(sys.argv) > 2:
+        print("too many arguments provided")
+        sys.exit(1)
 
+    if len(sys.argv) == 2:
+        print(f"starting crawl of: {BASE_URL}")
 if __name__ == "__main__":
     main()
