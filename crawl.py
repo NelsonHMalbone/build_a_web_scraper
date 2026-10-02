@@ -1,5 +1,10 @@
 from urllib.parse import urlsplit,urljoin
+
+import aiohttp
 import requests
+import asyncio
+
+from aiohttp.hdrs import CONTENT_TYPE
 from bs4 import BeautifulSoup, Tag
 
 def get_heading_from_html(html: str) -> str:
@@ -85,6 +90,48 @@ def extract_page_data(html: str, page_url: str):
         "outgoing_links": get_urls_from_html(html,page_url),
         "image_urls": get_images_from_html(html,page_url)
     }
+
+class AsyncCrawler:
+    def __init__(self, base_url):
+        self.visited = set()
+        self.lock = asyncio.Lock()
+        self.base_url = base_url
+        self.base_domain = urlsplit(base_url).netloc
+        self.page_data = {}
+        self.max_concurrency = 5
+        self.semaphore = asyncio.Semaphore(self.max_concurrency)
+        self.session = None
+        # initialize the other required fields
+
+    async def add_page_visit(self, normalized_url):
+        async with self.lock:
+            # check self.visited, then add when appropriate
+            if normalized_url in self.visited:
+                return False
+            self.visited.add(normalized_url)
+            return True
+
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.session.close()
+
+    async def get_html(self, url):
+        async with self.session.get(url, headers={"User-Agent": "BootCrawler/1.0"}) as response:
+            html_code = response.status
+            html_content = response.headers["Content-Type"]
+            html = await response.text()
+
+            # recreating two checks from your old synchronous version
+            if html_code > 400:
+                raise Exception("HTTP status code error level above 400 +")
+
+            if "text/html" not in html_content:
+                raise Exception("Content-type header is not text/html")
+
+            return html
 
 
 
