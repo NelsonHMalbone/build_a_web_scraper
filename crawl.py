@@ -133,7 +133,38 @@ class AsyncCrawler:
 
             return html
 
+    async def crawl_page(self, current_url):
+        normalized_url = normalize_url(current_url)
+        is_new_page = await self.add_page_visit(normalized_url)
 
+        if not is_new_page:
+            return
+
+        async with self.semaphore:
+           html = await self.get_html(current_url)
+        page_data = extract_page_data(html,current_url)
+
+
+        async with self.lock:
+            self.page_data[normalized_url] = page_data
+
+        outgoing_links = page_data["outgoing_links"]
+
+        tasks = []
+
+        for link in outgoing_links:
+            task = asyncio.create_task(self.crawl_page(link))
+            tasks.append(task)
+        await asyncio.gather(*tasks)
+
+    async def crawl(self):
+        await self.crawl_page(self.base_url)
+        return self.page_data
+
+async def crawl_site_async(base_url):
+    async with AsyncCrawler(base_url) as crawler:
+        result = await crawler.crawl()
+        return result
 
 def crawl_page(base_url, current_url=None, page_data=None):
     if current_url is None:

@@ -1,7 +1,8 @@
 from typing import TypedDict
 import sys
+import asyncio
 
-from crawl import crawl_page
+from crawl import crawl_site_async
 
 class PageData(TypedDict):
     url: str
@@ -11,7 +12,7 @@ class PageData(TypedDict):
     image_urls: list[str]
 
 # the code above is just the set up
-def main():
+async def main():
     print("Hello from build-a-web-scraper!")
 
     #setting up some arguments
@@ -28,8 +29,12 @@ def main():
     if len(sys.argv) == 2:
         print(f"starting crawl of: {BASE_URL}")
 
-    crawl_pages = crawl_page(BASE_URL)
-    print(f"pages found: {len(crawl_pages)}")
+    page_data = await crawl_site_async(BASE_URL)
+    print(f"pages found: {len(page_data)}")
+
+    for page in page_data.values():
+        print(page)
+
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
