@@ -3,6 +3,7 @@ import sys
 import asyncio
 
 from crawl import crawl_site_async
+from json_report import write_json_report
 
 class PageData(TypedDict):
     url: str
@@ -31,10 +32,9 @@ async def main():
     print(f"starting crawl of: {BASE_URL}")
 
     page_data = await crawl_site_async(BASE_URL, max_concurrency, max_pages)
-    print(f"pages found: {len(page_data)}")
+    write_json_report(page_data)
 
-    for page in page_data.values():
-        print(page)
+
 
 
 if __name__ == "__main__":
