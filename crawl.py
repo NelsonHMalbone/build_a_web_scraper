@@ -1,4 +1,3 @@
-from importlib.metadata import pass_none
 from urllib.parse import urlsplit,urljoin
 
 import aiohttp
@@ -159,6 +158,7 @@ class AsyncCrawler:
 
         async with self.semaphore:
            html = await self.get_html(current_url)
+           print(f"crawling: {current_url}")
         page_data = extract_page_data(html,current_url)
 
 
@@ -185,8 +185,8 @@ class AsyncCrawler:
         await self.crawl_page(self.base_url)
         return self.page_data
 
-async def crawl_site_async(base_url):
-    async with AsyncCrawler(base_url) as crawler:
+async def crawl_site_async(base_url, max_concurrency, max_pages):
+    async with AsyncCrawler(base_url, max_concurrency, max_pages) as crawler:
         result = await crawler.crawl()
         return result
 
